@@ -21,6 +21,7 @@ let game_cursor;
 //game
 let score = 0;
 let isGameOver = false
+let socket;
 
 //Duck characteristics
 class Duck{
@@ -45,20 +46,23 @@ function preload() {
   duck = loadImage('img/pato.png'); 
   duck2 = loadImage('img/pato2.png');
   game_cursor = loadImage('img/mira.png');
-  //back = loadImage('./images/back.png');
 }
 
 function setup() {
-  frameRate(60)
-  createCanvas(1320, 650);
-  cursor(game_cursor);
-  noCursor();
+    frameRate(60)
+    createCanvas(1320, 650);
+    cursor(game_cursor);
+    noCursor();
+
+    socket = io.connect('http://localhost:5500');
+
+    socket.on('move-right', moveRight);
+    socket.on('move-left', moveLeft);
+    socket.on('shoot', shooter);
 }
 
 function draw() {
   background(220);
-  //image(back, 0, 0, 1490, 750 )
-  
 
   //timer
   if (!isGameOver && millis() - lastCountUpdate > countInterval && count > 0) {
@@ -81,35 +85,6 @@ function draw() {
     cursorX = mouseX;
     cursorY = mouseY;
     image(game_cursor,cursorX, cursorY, 40, 40);
-
-
-    //kill
-    if (!isGameOver && mouseIsPressed) {
-      for (let i = ducks.length - 1; i >= 0; i--) {
-        const duck = ducks[i];
-        const duckX = duck.x;
-        const duckY = duck.y;
-        const duckWidth = 100;  
-        const duckHeight = 100;
-  
-        // Check kill
-        if (
-          mouseX >= duckX &&
-          mouseX <= duckX + duckWidth &&
-          mouseY >= duckY &&
-          mouseY <= duckY + duckHeight
-        ) {
-          if(duck.img === duck2){
-            score += 30;
-          }else{
-            score += 10;
-          }
-
-          ducks.splice(i, 1);
-        }
-      }
-    }
-
 
     //Duck spaws
     if(!isGameOver && millis() - lastSpawnTime > spawnInterval){
@@ -144,4 +119,41 @@ function draw() {
     textAlign(CENTER, CENTER);
     text(`Score: ${score}`, width / 2, height / 2+20)
   }
+}
+
+function moveRight(){
+    cursorX += 5;
+}
+
+function moveLeft(){
+    cursorX -= 5;
+}
+
+//kill
+function shooter(){
+    if (!isGameOver && mouseIsPressed) {
+    for (let i = ducks.length - 1; i >= 0; i--) {
+        const duck = ducks[i];
+        const duckX = duck.x;
+        const duckY = duck.y;
+        const duckWidth = 100;  
+        const duckHeight = 100;
+
+        // Check kill
+        if (
+        mouseX >= duckX &&
+        mouseX <= duckX + duckWidth &&
+        mouseY >= duckY &&
+        mouseY <= duckY + duckHeight
+        ) {
+        if(duck.img === duck2){
+            score += 30;
+        }else{
+            score += 10;
+        }
+
+        ducks.splice(i, 1);
+        }
+    }
+    }
 }

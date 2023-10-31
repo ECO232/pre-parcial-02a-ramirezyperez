@@ -1,15 +1,15 @@
-//Uso de librerias
+//Bookstores
 import express from 'express';
 import cors from 'cors'
 import { Server } from 'socket.io';
 
-//Puerto de la aplicacion
+//App Port
 const PORT = 5500;
 
 const expressApp = express()
 expressApp.use(cors())
 
-//URL del mupi y el control
+//Game URL
 const httpServer = expressApp.listen(PORT, () => {
     console.table(
         {
@@ -20,7 +20,7 @@ const httpServer = expressApp.listen(PORT, () => {
 expressApp.use('/game', express.static('public-game'))
 expressApp.use(express.json())
 
-//Comportamiento del servidor
+//Server
 const io = new Server(httpServer, {
     path: '/real-time',
     cors: {
@@ -29,8 +29,19 @@ const io = new Server(httpServer, {
     }
 });
 
-//Iniciar el servidor
+//Start Server
 io.on('connection', (socket) => {
-    console.log('Nueva conexión de Socket.IO');
-  }
-)
+    console.log('Usuario conectado');
+
+    socket.on('move-right', () => {
+        io.emit('move-right');
+    });
+
+    socket.on('move-left', () => {
+        io.emit('move-left');
+    });
+
+    socket.on('shoot', () => {
+        io.emit('shoot');
+    });
+});
