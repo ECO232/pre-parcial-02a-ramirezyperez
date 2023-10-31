@@ -54,11 +54,9 @@ function setup() {
     cursor(game_cursor);
     noCursor();
 
-    socket = io.connect('http://localhost:5500');
+    socket = io.connect('http://localhost:5500', { path: '/real_time' });
 
-    socket.on('move-right', moveRight);
-    socket.on('move-left', moveLeft);
-    socket.on('shoot', shooter);
+    
 }
 
 function draw() {
@@ -85,6 +83,34 @@ function draw() {
     cursorX = mouseX;
     cursorY = mouseY;
     image(game_cursor,cursorX, cursorY, 40, 40);
+
+
+
+    if (!isGameOver && mouseIsPressed) {
+      for (let i = ducks.length - 1; i >= 0; i--) {
+          const duck = ducks[i];
+          const duckX = duck.x;
+          const duckY = duck.y;
+          const duckWidth = 100;  
+          const duckHeight = 100;
+  
+          // Check kill
+          if (
+          mouseX >= duckX &&
+          mouseX <= duckX + duckWidth &&
+          mouseY >= duckY &&
+          mouseY <= duckY + duckHeight
+          ) {
+          if(duck.img === duck2){
+              score += 30;
+          }else{
+              score += 10;
+          }
+  
+          ducks.splice(i, 1);
+          }
+      }
+      }
 
     //Duck spaws
     if(!isGameOver && millis() - lastSpawnTime > spawnInterval){
@@ -130,30 +156,49 @@ function moveLeft(){
 }
 
 //kill
-function shooter(){
-    if (!isGameOver && mouseIsPressed) {
-    for (let i = ducks.length - 1; i >= 0; i--) {
-        const duck = ducks[i];
-        const duckX = duck.x;
-        const duckY = duck.y;
-        const duckWidth = 100;  
-        const duckHeight = 100;
+// function shooter(){
+//     if (!isGameOver && mouseIsPressed) {
+//     for (let i = ducks.length - 1; i >= 0; i--) {
+//         const duck = ducks[i];
+//         const duckX = duck.x;
+//         const duckY = duck.y;
+//         const duckWidth = 100;  
+//         const duckHeight = 100;
 
-        // Check kill
-        if (
-        mouseX >= duckX &&
-        mouseX <= duckX + duckWidth &&
-        mouseY >= duckY &&
-        mouseY <= duckY + duckHeight
-        ) {
-        if(duck.img === duck2){
-            score += 30;
-        }else{
-            score += 10;
-        }
+//         // Check kill
+//         if (
+//         mouseX >= duckX &&
+//         mouseX <= duckX + duckWidth &&
+//         mouseY >= duckY &&
+//         mouseY <= duckY + duckHeight
+//         ) {
+//         if(duck.img === duck2){
+//             score += 30;
+//         }else{
+//             score += 10;
+//         }
 
-        ducks.splice(i, 1);
-        }
-    }
-    }
-}
+//         ducks.splice(i, 1);
+//         }
+//     }
+//     }
+
+    
+// }
+
+// function moveRight() {
+//   cursorX += 5;
+//   socket.emit('move-right'); // Emitir evento al servidor
+// }
+
+// function moveLeft() {
+//   cursorX -= 5;
+//   socket.emit('move-left'); // Emitir evento al servidor
+// }
+
+// function shooter() {
+//   if (!isGameOver && mouseIsPressed) {
+//       // Lógica de disparo
+//       socket.emit('shoot'); // Emitir evento al servidor
+//   }
+// }
